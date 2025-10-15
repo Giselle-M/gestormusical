@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestor Musical — Interfaz</title>
+  <style>
+    /* Variables de tema */
+    :root{
+      --bg:#0f1724; /* azul oscuro */
+      --surface:#0b1220;
+      --muted:#94a3b8;
+      --accent:#7c3aed; /* púrpura */
+      --accent-2:#06b6d4; /* teal */
+      --card:#0f1a2b;
+      --glass: rgba(255,255,255,0.04);
+      --radius:14px;
+      --gap:16px;
+      --shadow: 0 6px 20px rgba(2,6,23,0.6);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, 'Helvetica Neue', Arial;
+    }
+
+    /* Reset ligero */
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#071022);color:#e6eef8}
+
+    .app{
+      display:grid;
+      grid-template-columns: 240px 1fr;
+      grid-template-rows: auto 1fr auto;
+      gap:var(--gap);
+      min-height:100vh;
+      padding:24px;
+    }
+
+    /* Header */
+    header{
+      grid-column:1/-1;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:12px 18px;border-radius:12px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));backdrop-filter: blur(6px);
+      box-shadow: var(--shadow);
+    }
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo .icon{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700}
+    h1{font-size:18px;margin:0}
+    .header-actions{display:flex;gap:12px;align-items:center}
+    .search{display:flex;align-items:center;background:var(--glass);padding:8px;border-radius:12px;gap:8px}
+    .search input{background:transparent;border:none;outline:none;color:var(--muted);min-width:220px}
+
+    /* Sidebar */
+    nav.sidebar{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:18px;border-radius:12px;box-shadow: var(--shadow)}
+    .menu{display:flex;flex-direction:column;gap:8px}
+    .menu a{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;color:var(--muted);text-decoration:none}
+    .menu a.active{background:rgba(255,255,255,0.02);color:#fff}
+    .section-title{font-size:12px;color:var(--muted);margin:10px 0 6px}
+
+    /* Main */
+    main{padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);box-shadow: var(--shadow);}
+    .top-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .playlists{display:flex;gap:12px;overflow:auto;padding-bottom:6px}
+    .pl-card{min-width:160px;padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;flex-direction:column;gap:8px}
+    .pl-card .title{font-weight:600}
+    .content{margin-top:18px}
+
+    /* Track list */
+    .track-list{display:grid;grid-template-columns: 1fr;gap:10px}
+    .track{display:grid;grid-template-columns: 48px 1fr 140px 120px;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+    .track .art{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700}
+    .track .meta{display:flex;flex-direction:column}
+    .track .meta .title{font-weight:600}
+    .track .meta .artist{font-size:13px;color:var(--muted)}
+    .track .actions{display:flex;gap:8px;justify-content:flex-end}
+
+    /* Now playing footer */
+    footer.player{grid-column:1/-1;position:sticky;bottom:24px;margin-top:12px;padding:12px;border-radius:14px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow: var(--shadow)}
+    .now{display:flex;gap:12px;align-items:center}
+    .controls{display:flex;gap:12px;align-items:center}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,0.05);padding:8px;border-radius:10px;cursor:pointer}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .app{grid-template-columns: 1fr;grid-template-rows:auto 1fr auto;padding:16px}
+      nav.sidebar{order:2}
+      main{order:1}
+    }
+
+    /* Small helpers */
+    .muted{color:var(--muted)}
+    .pill{background:rgba(255,255,255,0.03);padding:6px 10px;border-radius:999px;font-size:13px}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:none;color:white}
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo">
+        <div class="icon">GM</div>
+        <div>
+          <h1>Gestor Musical</h1>
+          <div class="muted" style="font-size:13px">Tu biblioteca — organizada</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input placeholder="Buscar artista, canción, álbum..." aria-label="buscar" />
+        </div>
+        <button class="btn">Importar</button>
+        <button class="btn primary">Subir +</button>
+      </div>
+    </header>
+
+    <nav class="sidebar">
+      <div class="menu">
+        <a href="#" class="active">Biblioteca</a>
+        <a href="#">Explorar</a>
+        <a href="#">Radio</a>
+        <a href="#">Favoritos</a>
+      </div>
+
+      <div class="section-title">Listas</div>
+      <div class="menu">
+        <a href="#">En sesión</a>
+        <a href="#">Top 50</a>
+        <a href="#">Covers</a>
+      </div>
+
+      <div class="section-title">Configuración</div>
+      <div class="menu">
+        <a href="#">Preferencias</a>
+        <a href="#">Cuenta</a>
+      </div>
+    </nav>
+
+    <main>
+      <div class="top-row">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div class="pill">Playlists</div>
+          <div class="muted">Vista rápida</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="muted">Ordenar por:</div>
+          <select style="background:transparent;border-radius:10px;padding:8px;border:1px solid rgba(255,255,255,0.04);color:var(--muted)">
+            <option>Recientes</option>
+            <option>Artista</option>
+            <option>Álbum</option>
+            <option>Popularidad</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="playlists" style="margin-top:12px">
+        <div class="pl-card">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center">P</div>
+            <div>
+              <div style="font-weight:700">Chill Vibes</div>
+              <div class="muted" style="font-size:13px">24 canciones</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pl-card">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#ff7a7a,#ffd36a);display:flex;align-items:center;justify-content:center">R</div>
+            <div>
+              <div style="font-weight:700">Roadtrip</div>
+              <div class="muted" style="font-size:13px">18 canciones</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pl-card">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#7dd3fc,#60a5fa);display:flex;align-items:center;justify-content:center">B</div>
+            <div>
+              <div style="font-weight:700">Beats</div>
+              <div class="muted" style="font-size:13px">36 canciones</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="content">
+        <h2 style="margin:0 0 12px 0">Canciones</h2>
+
+        <div class="track-list" id="trackList">
+          <!-- Ejemplo de 3 pistas -->
+          <div class="track">
+            <div class="art">A</div>
+            <div class="meta">
+              <div class="title">Aurora</div>
+              <div class="artist muted">Luz del Alba</div>
+            </div>
+            <div class="muted">Álbum — Eclipse</div>
+            <div class="actions">
+              <button class="btn">❤</button>
+              <button class="btn">⋯</button>
+            </div>
+          </div>
+
+          <div class="track">
+            <div class="art">S</div>
+            <div class="meta">
+              <div class="title">Sunset Drive</div>
+              <div class="artist muted">Night Pilots</div>
+            </div>
+            <div class="muted">Single</div>
+            <div class="actions">
+              <button class="btn">❤</button>
+              <button class="btn">⋯</button>
+            </div>
+          </div>
+
+          <div class="track">
+            <div class="art">M</div>
+            <div class="meta">
+              <div class="title">Marea</div>
+              <div class="artist muted">Mar y Cielo</div>
+            </div>
+            <div class="muted">Álbum — Brisa</div>
+            <div class="actions">
+              <button class="btn">❤</button>
+              <button class="btn">⋯</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="player">
+      <div class="now">
+        <div style="width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700">A</div>
+        <div>
+          <div style="font-weight:700">Aurora</div>
+          <div class="muted" style="font-size:13px">Luz del Alba — Eclipse</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn">⟲</button>
+        <button class="btn">◀</button>
+        <button class="btn primary" style="padding:10px 18px;border-radius:12px">▶</button>
+        <button class="btn">▶︎▶︎</button>
+        <button class="btn">⤴</button>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="muted">0:42 / 3:20</div>
+        <input type="range" min="0" max="100" value="15" style="width:150px;" />
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Pequeñas interacciones demo (solo UI)
+    document.querySelectorAll('.track .btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const t = e.currentTarget.closest('.track');
+        if(!t) return;
+        // marcar favorito (visual)
+        if(e.currentTarget.textContent.trim() === '❤'){
+          e.currentTarget.textContent = '♥';
+          e.currentTarget.classList.toggle('primary');
+        } else if(e.currentTarget.textContent.trim() === '⋯'){
+          alert('Más opciones (editar, mover a lista, eliminar) — implementar según backend.');
+        }
+      })
+    })
+
+    // Simular clic en play
+    document.querySelector('.controls .primary')?.addEventListener('click', ()=>{
+      alert('Play ▶ — Aquí puedes integrar audio API o WebAudio para reproducir pistas.');
+    })
+
+    // Búsqueda básica UI
+    const search = document.querySelector('.search input');
+    const list = document.getElementById('trackList');
+    search?.addEventListener('input', ()=>{
+      const q = search.value.toLowerCase();
+      Array.from(list.children).forEach(track=>{
+        const title = track.querySelector('.title').textContent.toLowerCase();
+        const artist = track.querySelector('.artist').textContent.toLowerCase();
+        track.style.display = (title.includes(q) || artist.includes(q)) ? 'grid' : 'none';
+      })
+    })
+  </script>
+</body>
+</html>
